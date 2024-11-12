@@ -33,11 +33,17 @@ defaults
         errorfile 503 /etc/haproxy/errors/503.http
         errorfile 504 /etc/haproxy/errors/504.http
 
-frontend  peterobinna_frontend
+frontend peterobinna_frontend_http
         bind *:80
-        bind *:443 ssl crt /etc/letsencrypt/live/www.petersuccess.tech/www.petersuccess.tech.pem
         mode http
+	http-request set-header X-Forwarded-Proto http
         default_backend peterobinna_backend
+
+frontend peterobinna_frontend_https
+	bind *:443 ssl crt /etc/haproxy/cert/www.petersuccess.tech.pem
+	http-request set-header X-Forwarded-Proto https
+	default_backend peterobinna_backend
+
 backend peterobinna_backend
         balance roundrobin
         server 6337-web-01 18.209.67.96:80 check
